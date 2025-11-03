@@ -2,69 +2,60 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>IPTV Fullscreen Player</title>
-<meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1">
+<title>WANDERING OLDMAN TV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
-html, body { margin:0; padding:0; width:100%; height:100%; background:#000; overflow:hidden; }
-#player { width:100%; height:100%; }
+html, body {
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+}
+#player {
+    width:100%;
+    height:100%;
+}
 </style>
 
-<!-- JW Player Library -->
 <script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-<script> jwplayer.key='XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo';</script>
+<script> jwplayer.key='XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo'; </script>
 </head>
 <body>
 <div id="player"></div>
 
 <script>
 (function(){
-    // 🔒 Base64 URL ของ DASH/HLS สตรีมจริง
-    const encoded = "aHR0cHM6Ly9jY28tc3RyZWFtZXIxLmNkbi4zYmJ0di5jb206ODQ0My8zYmIvbGl2ZS8xMDcvMTA3Lm1wZA==";
+    // Base64 URL ของสตรีม (ซ่อน URL จริง)
+    const encoded = "aHR0cDovLzYzOTVvbmxpbmUuZGRucy5uZXQ6ODA4MC9tZW1mcy80OTRhOWEzNy00NWU5LTQwYWUtOWY3My0xNDg5OTk0YWIyYzNfb3V0cHV0XzAubTN1OD9zZXNzaW9uPThXVDVrSFpZOW9KcWZUNGI4REpnQUQ=";
     const url = atob(encoded).trim();
 
     var playerInstance = jwplayer("player");
 
     playerInstance.setup({
-        playlist: [{
-            title: "HBO",
-            description: "HBO Live Channel",
-            sources: [
-                { 
-                    file: url, 
-                    type: "dash",
-                    drm: {
-                        clearkey: {
-                            keyId: "f48caba466394e93b50780f21798787a",
-                            key: "9a074a10db4342e7937076b3e52f6029"
-                        }
-                    },
-                    label: "HD",
-                    default: true
-                },
-                { file: url, type: "hls", label: "HLS" }
-            ]
-        }],
+        file: url,
+        type: "hls",
         width: "100%",
         height: "100%",
-        aspectratio: "16:9",
         autostart: true,
-        mute: false,       // เปิดเสียงเลย
-        stretching: "fill", // เต็มจอเต็มพื้นที่
-        primary: "html5",
-        repeat: true,
+        mute: false,  // เปิดเสียงทันที
         controls: true,
-        preload: "auto"
+        stretching: "fill"
     });
 
-    // รีโหลดอัตโนมัติเมื่อเกิด error
+    // สำหรับ browser ที่อาจ block autoplay เสียง
+    document.body.addEventListener('click', () => {
+        playerInstance.setVolume(100); // เปิดเสียงเต็ม
+        playerInstance.play();
+    }, { once: true });
+
+    // reload อัตโนมัติถ้าเกิด error
     playerInstance.on('error', function(e){
         console.error("JW Player error:", e);
         setTimeout(() => playerInstance.load(playerInstance.getPlaylist()), 3000);
     });
 
-    // เล่นซ้ำอัตโนมัติ
-    playerInstance.on('complete', function(){ playerInstance.play(); });
 })();
 </script>
 </body>
