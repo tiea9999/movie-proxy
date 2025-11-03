@@ -1,0 +1,3 @@
+#EXTM3U
+#EXTINF:-1 tvg-logo="https://i.imgur.com/4ZsL2Dh.png" group-title="MOVIE", Movie Channel
+https://movie-proxy.vercel.app/api/proxy
