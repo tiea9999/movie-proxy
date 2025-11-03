@@ -1,62 +1,49 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>WANDERING OLDMAN TV</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<style>
-html, body {
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    background:#000;
-    overflow:hidden;
-}
-#player {
-    width:100%;
-    height:100%;
-}
-</style>
-
-<script src="https://content.jwplatform.com/libraries/KB5zFt7A.js"></script>
-<script> jwplayer.key='XSuP4qMl+9tK17QNb+4+th2Pm9AWgMO/cYH8CI0HGGr7bdjo'; </script>
+  <meta charset="UTF-8">
+  <title>TV Player Single Channel</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:#000; display:flex; flex-direction:column; }
+    #video-player { width:100vw; height:100vh; background:#000; }
+  </style>
 </head>
 <body>
-<div id="player"></div>
+
+<video id="video-player" controls autoplay playsinline webkit-playsinline></video>
 
 <script>
-(function(){
-    // Base64 URL ของสตรีม (ซ่อน URL จริง)
-    const encoded = "aHR0cDovLzYzOTVvbmxpbmUuZGRucy5uZXQ6ODA4MC9tZW1mcy80OTRhOWEzNy00NWU5LTQwYWUtOWY3My0xNDg5OTk0YWIyYzNfb3V0cHV0XzAubTN1OD9zZXNzaW9uPThXVDVrSFpZOW9KcWZUNGI4REpnQUQ=";
-    const url = atob(encoded).trim();
+  const video = document.getElementById("video-player");
 
-    var playerInstance = jwplayer("player");
+  // -----------------------------
+  // กำหนด URL ช่องตรงนี้
+  const channelURL = "http://6395online.ddns.net:8080/memfs/494a9a37-45e9-40ae-9f73-1489994ab2c3_output_0.m3u8?session=8WT5kHZY9oJqfT4b8DJgAD";
 
-    playerInstance.setup({
-        file: url,
-        type: "hls",
-        width: "100%",
-        height: "100%",
-        autostart: true,
-        mute: false,  // เปิดเสียงทันที
-        controls: true,
-        stretching: "fill"
-    });
+  const refreshInterval = 25 * 60 * 1000; // 25 นาที
 
-    // สำหรับ browser ที่อาจ block autoplay เสียง
-    document.body.addEventListener('click', () => {
-        playerInstance.setVolume(100); // เปิดเสียงเต็ม
-        playerInstance.play();
-    }, { once: true });
+  async function playChannel() {
+    try {
+      video.src = channelURL;
+      video.type = "application/x-mpegURL";
+      await video.play().catch(err => console.warn("❌ เล่นอัตโนมัติไม่ได้:", err));
+      console.log("🔁 เล่นช่อง URL:", channelURL);
+    } catch (err) {
+      console.error("❌ เกิดข้อผิดพลาด:", err);
+      setTimeout(playChannel, 5000);
+    }
+  }
 
-    // reload อัตโนมัติถ้าเกิด error
-    playerInstance.on('error', function(e){
-        console.error("JW Player error:", e);
-        setTimeout(() => playerInstance.load(playerInstance.getPlaylist()), 3000);
-    });
+  // เล่นครั้งแรก
+  playChannel();
 
-})();
+  // รีเฟรชอัตโนมัติทุก 25 นาที
+  setInterval(playChannel, refreshInterval);
+
+  // ตรวจสอบถ้าวิดีโอหยุด
+  setInterval(() => {
+    if (video.paused || video.ended) playChannel();
+  }, 5 * 60 * 1000);
 </script>
+
 </body>
 </html>
